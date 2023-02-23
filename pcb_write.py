@@ -14,6 +14,7 @@ h = plate_height-padding_h*2
 track_count = int(w/(track_width + track_to_track_distance))
 copper_thiknes_um = 18
 u=220
+temperature=100
 
 def drawLine(dwg, start, end, width):
 	dwg.add(dwg.line(start=(start[0]*mm, start[1]*mm),
@@ -22,7 +23,7 @@ def drawLine(dwg, start, end, width):
 					stroke_width=width*mm,
 					stroke_linecap='round'))
 
-def calcResistance(lenth, width, thiknes, temp=100):
+def calcResistance(lenth, width, thiknes, temp=temperature):
 	#lenth im meters
 	#width im mm
 	#thiknes in um
@@ -78,6 +79,6 @@ if __name__ == '__main__':
 	print('Track to track distamce is: ', track_to_track_distance, 'mm')
 	print('Totol lenth is: ', wire_lenth, 'mm')
 	r = calcResistance(wire_lenth/1000, track_width, copper_thiknes_um)
-	print('Resistance is: ', r, 'Om')
+	print('Resistance is: ', r, 'Om at ', temperature, ' degrees of Celsius')
 	print('Current is :', u/r, 'Amps')
 	print('Power is: ', u*u/r, 'Watt')
