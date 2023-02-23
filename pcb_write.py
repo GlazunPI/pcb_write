@@ -16,8 +16,8 @@ copper_thiknes_um = 18
 u=220
 
 def drawLine(dwg, start, end, width):
-	dwg.add(dwg.line(start=start,
-					end=end,
+	dwg.add(dwg.line(start=(start[0]*mm, start[1]*mm),
+					end=(end[0]*mm, end[1]*mm),
 					stroke='black',
 					stroke_width=width*mm,
 					stroke_linecap='round'))
@@ -33,29 +33,41 @@ def calcResistance(lenth, width, thiknes, temp=100):
 	resistivity = 0.0172 #Om*mm^2/m
 	return resistivity*lenth/(width*thiknes*0.001)*(1 + (temp_co*(temp - 20)))
 
-def draw_pcb():
-	wire_lenth = 0
-	dwg = svgwrite.Drawing('pcb.svg', profile='tiny', size=(plate_width*mm, plate_height*mm))
+def calcDistance(x1, y1, x2, y2):
+		return  math.sqrt(pow(x1-x2, 2)) + math.sqrt(pow(y1-y2, 2))
+
+def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_distance):
+	track_count = int(w/(track_width + track_to_track_distance))
+	lines = []
 	for track in range(track_count):
 		x1 = (track*(track_width+track_to_track_distance)+padding_w)
 		y1 = padding_h
 		x2 = (track*(track_width+track_to_track_distance)+padding_w)
 		y2 = (padding_h + h)
-		start_point = (x1*mm, y1*mm)
-		end_point = (x2*mm, y2*mm)
-		drawLine(dwg, start=start_point, end=end_point, width=track_width)
-		distance = math.sqrt(pow(x1-x2, 2)) + math.sqrt(pow(y1-y2, 2))
-		wire_lenth = wire_lenth +  distance  
-		x2 = (track*(track_width+track_to_track_distance)+track_width+track_to_track_distance+padding_w)
+		start_point = (x1, y1)
+		end_point = (x2, y2)
+		line = [start_point, end_point]
+		lines.append(line)
+		x2 = (track*(track_width+track_to_track_distance)+track_width + track_to_track_distance + padding_w)
 		if (track % 2 == 0):
-			start_point = (x1*mm, y1*mm)
-			end_point = (x2*mm, y1*mm)
+			start_point = (x1, y1)
+			end_point = (x2, y1)
 		else:
-
-			start_point = (x1*mm, y2*mm)
-			end_point = (x2*mm, y2*mm)
+			start_point = (x1, y2)
+			end_point = (x2, y2)
 		if track < track_count - 1:
-			drawLine(dwg, start=start_point, end=end_point, width=track_width)
+			line = [start_point, end_point]
+			lines.append(line)
+	return lines
+
+def draw_pcb():
+	wire_lenth = 0
+	dwg = svgwrite.Drawing('pcb.svg', profile='tiny', size=(plate_width*mm, plate_height*mm))
+	lines = get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_distance)
+	wire_lenth = 0
+	for line in lines:
+		drawLine(dwg, line[0], line[1], track_width)
+		wire_lenth = wire_lenth + calcDistance(line[0][0], line[0][1], line[1][0], line[1][1])
 	dwg.save()
 	return wire_lenth
 
