@@ -12,6 +12,8 @@ padding_h = 10
 w = plate_width-padding_w*2
 h = plate_height-padding_h*2
 track_count = int(w/(track_width + track_to_track_distance))
+copper_thiknes_um = 18
+u=220
 
 def drawLine(dwg, start, end, width):
 	dwg.add(dwg.line(start=start,
@@ -19,6 +21,17 @@ def drawLine(dwg, start, end, width):
 					stroke='black',
 					stroke_width=width*mm,
 					stroke_linecap='round'))
+
+def calcResistance(lenth, width, thiknes, temp=100):
+	#lenth im meters
+	#width im mm
+	#thiknes in um
+	#temp deegres celsius
+	#From:
+	#http://circuitcalculator.com/wordpress/2006/01/24/trace-resistance-calculator/
+	temp_co	= 0.0039 #Om^-1
+	resistivity = 0.0172 #Om*mm^2/m
+	return resistivity*lenth/(width*thiknes*0.001)*(1 + (temp_co*(temp - 20)))
 
 def draw_pcb():
 	wire_lenth = 0
@@ -48,6 +61,11 @@ def draw_pcb():
 
 if __name__ == '__main__':
 	wire_lenth = draw_pcb()
+	print('Coper thiknes is: ', copper_thiknes_um, 'um')
 	print('Track width is: ', track_width, 'mm')
 	print('Track to track distamce is: ', track_to_track_distance, 'mm')
 	print('Totol lenth is: ', wire_lenth, 'mm')
+	r = calcResistance(wire_lenth/1000, track_width, copper_thiknes_um)
+	print('Resistance is: ', r, 'Om')
+	print('Current is :', u/r, 'Amps')
+	print('Power is: ', u*u/r, 'Watt')
