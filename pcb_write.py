@@ -16,14 +16,14 @@ copper_thiknes_um = 18
 u=220
 temperature=100
 
-def drawLine(dwg, start, end, width):
+def draw_line(dwg, start, end, width):
 	dwg.add(dwg.line(start=(start[0]*mm, start[1]*mm),
 					end=(end[0]*mm, end[1]*mm),
 					stroke='black',
 					stroke_width=width*mm,
 					stroke_linecap='round'))
 
-def calcResistance(lenth, width, thiknes, temp=temperature):
+def calc_resistance(lenth, width, thiknes, temp=temperature):
 	#lenth im meters
 	#width im mm
 	#thiknes in um
@@ -34,7 +34,7 @@ def calcResistance(lenth, width, thiknes, temp=temperature):
 	resistivity = 0.0172 #Om*mm^2/m
 	return resistivity*lenth/(width*thiknes*0.001)*(1 + (temp_co*(temp - 20)))
 
-def calcDistance(x1, y1, x2, y2):
+def calc_distance(x1, y1, x2, y2):
 		return  math.sqrt(pow(x1-x2, 2)) + math.sqrt(pow(y1-y2, 2))
 
 def calc_track_count(width, track_width, track_to_track_distance):
@@ -70,8 +70,8 @@ def draw_pcb():
 	lines = get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_distance)
 	wire_lenth = 0
 	for line in lines:
-		drawLine(dwg, line[0], line[1], track_width)
-		wire_lenth = wire_lenth + calcDistance(line[0][0], line[0][1], line[1][0], line[1][1])
+		draw_line(dwg, line[0], line[1], track_width)
+		wire_lenth = wire_lenth + calc_distance(line[0][0], line[0][1], line[1][0], line[1][1])
 	dwg.save()
 	return wire_lenth
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	print('Track width is: ', track_width, 'mm')
 	print('Track to track distamce is: ', track_to_track_distance, 'mm')
 	print('Totol lenth is: ', wire_lenth, 'mm')
-	r = calcResistance(wire_lenth/1000, track_width, copper_thiknes_um)
+	r = calc_resistance(wire_lenth/1000, track_width, copper_thiknes_um)
 	print('Resistance is: ', r, 'Om at ', temperature, ' degrees of Celsius')
 	print('Current is :', u/r, 'Amps')
 	print('Power is: ', u*u/r, 'Watt')
