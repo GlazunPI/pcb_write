@@ -37,8 +37,11 @@ def calcResistance(lenth, width, thiknes, temp=temperature):
 def calcDistance(x1, y1, x2, y2):
 		return  math.sqrt(pow(x1-x2, 2)) + math.sqrt(pow(y1-y2, 2))
 
+def calc_track_count(width, track_width, track_to_track_distance):
+	return int(w/(track_width + track_to_track_distance))
+
 def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_distance):
-	track_count = int(w/(track_width + track_to_track_distance))
+	track_count = calc_track_count(w, track_width, track_to_track_distance)
 	lines = []
 	for track in range(track_count):
 		x1 = (track*(track_width+track_to_track_distance)+padding_w)
