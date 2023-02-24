@@ -75,8 +75,7 @@ def draw_pcb():
 	dwg.save()
 	return wire_lenth
 
-if __name__ == '__main__':
-	wire_lenth = draw_pcb()
+def print_info(wire_lenth ):
 	print('Coper thiknes is: ', copper_thiknes_um, 'um')
 	print('Track width is: ', track_width, 'mm')
 	print('Track to track distamce is: ', track_to_track_distance, 'mm')
@@ -85,3 +84,8 @@ if __name__ == '__main__':
 	print('Resistance is: ', r, 'Om at ', temperature, ' degrees of Celsius')
 	print('Current is :', u/r, 'Amps')
 	print('Power is: ', u*u/r, 'Watt')
+
+if __name__ == '__main__':
+	wire_lenth = draw_pcb()
+	print_info(wire_lenth )	
+	
