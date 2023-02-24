@@ -73,15 +73,15 @@ def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_dist
 			lines.append(line)
 	return lines
 
-def draw_pcb(config):
+def draw_pcb(config, file_name, draw_method):
 	wire_lenth = 0
-	dwg = svgwrite.Drawing('pcb.svg', profile='tiny', size=(config.plate_width*mm, config.plate_height*mm))
-	lines = get_lines_type1(config.w,
-							 config.h,
-							 config.padding_w,
-							 config.padding_h,
-							 config.track_width,
-							 config.track_to_track_distance)
+	dwg = svgwrite.Drawing(file_name, profile='tiny', size=(config.plate_width*mm, config.plate_height*mm))
+	lines = draw_method(config.w,
+						 config.h,
+						 config.padding_w,
+						 config.padding_h,
+						 config.track_width,
+						 config.track_to_track_distance)
 	wire_lenth = 0
 	for line in lines:
 		draw_line(dwg, line[0], line[1], config.track_width)
@@ -98,9 +98,10 @@ def print_info(config, wire_lenth):
 	print('Resistance is: ', r, 'Om at ', config.temperature, ' degrees of Celsius')
 	print('Current is :', config.u/r, 'Amps')
 	print('Power is: ', config.u*config.u/r, 'Watt')
+	print('')
 
 if __name__ == '__main__':
 	config = BoardConfig()
-	wire_lenth = draw_pcb(config)
+	wire_lenth = draw_pcb(config, 'pcb.svg', get_lines_type1)
 	print_info(config, wire_lenth)	
 	
