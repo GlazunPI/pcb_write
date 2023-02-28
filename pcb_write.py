@@ -61,7 +61,7 @@ def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_dist
 		end_point = (x2, y2)
 		line = [start_point, end_point]
 		lines.append(line)
-		x2 = (track*(track_width+track_to_track_distance)+track_width + track_to_track_distance + padding_w)
+		x2 = ((track + 1)*(track_width+track_to_track_distance) + padding_w)
 		if (track % 2 == 0):
 			start_point = (x1, y1)
 			end_point = (x2, y1)
@@ -72,6 +72,51 @@ def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_dist
 			line = [start_point, end_point]
 			lines.append(line)
 	return lines
+
+
+def get_lines_type2(w, h, padding_w, padding_h, track_width, track_to_track_distance):
+	track_count = calc_track_count(w, track_width, track_to_track_distance)
+	lines = []
+	#TODO: Add logic - track count % 4 == 0
+	if track_count % 4 != 0:
+		pass
+	for track in range(track_count):
+		x1 = (track*(track_width+track_to_track_distance)+padding_w)
+		if track % 4 == 0 or track % 4 == 3 or track ==  track_count - 1:
+			y1 = padding_h
+		else:
+			y1 = padding_h + track_width + track_to_track_distance
+		x2 = (track*(track_width+track_to_track_distance)+padding_w)
+
+		if track  == 0 or track == 1:
+			y2 = (padding_h + h)
+		elif track % 4 == 0 or track % 4 == 3:
+			y2 = (padding_h + h - track_width - track_to_track_distance)
+		else:
+			y2 = (padding_h + h)
+		start_point = (x1, y1)
+		end_point = (x2, y2)
+		line = [start_point, end_point]
+		lines.append(line)
+
+		if track % 2 != 0 or track ==  track_count - 2:
+			x2 = ((track + 1)*(track_width+track_to_track_distance) + padding_w)
+		else:
+			x2 = ((track + 3)*(track_width+track_to_track_distance) + padding_w)
+
+		if track % 4 == 0 or track % 4 == 1:
+			start_point = (x1, y1)
+			end_point = (x2, y1)
+		elif track % 4 == 2 or track % 4 == 3:
+			start_point = (x1, y2)
+			end_point = (x2, y2)
+
+		if track <=  track_count - 2:
+			line = [start_point, end_point]
+			lines.append(line)
+	return lines
+
+
 
 def draw_pcb(config, file_name, draw_method):
 	wire_lenth = 0
@@ -89,7 +134,8 @@ def draw_pcb(config, file_name, draw_method):
 	dwg.save()
 	return wire_lenth
 
-def print_info(config, wire_lenth):
+def print_info(config, wire_lenth, svg_filename):
+	print('For file: ', svg_filename)
 	print('Coper thiknes is: ', config.copper_thiknes_um, 'um')
 	print('Track width is: ', config.track_width, 'mm')
 	print('Track to track distamce is: ', config.track_to_track_distance, 'mm')
@@ -102,6 +148,12 @@ def print_info(config, wire_lenth):
 
 if __name__ == '__main__':
 	config = BoardConfig()
-	wire_lenth = draw_pcb(config, 'pcb.svg', get_lines_type1)
-	print_info(config, wire_lenth)	
+	svg_filename = 'pcb_type1.svg'
+	wire_lenth = draw_pcb(config, svg_filename, get_lines_type1)
+	print_info(config, wire_lenth, svg_filename)	
+
+	print("")
 	
+	svg_filename = 'pcb_type2.svg'
+	wire_lenth = draw_pcb(config, svg_filename, get_lines_type2)
+	print_info(config, wire_lenth, svg_filename)	
