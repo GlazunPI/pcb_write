@@ -4,7 +4,7 @@ from svgwrite import mm
 
 class BoardConfig:
 	def __init__(self,
-				track_width = 1,
+				track_width = 0.3,
 				track_to_track_distance = 1,
 				plate_width = 200,
 				plate_height = 200,
@@ -12,7 +12,9 @@ class BoardConfig:
 				padding_h = 10,
 				copper_thiknes_um = 18,
 				u=220,
-				temperature=100):
+				temperature=100,
+				foreground_color='white',
+				background_color='black'):
 		self.track_width = track_width
 		self.track_to_track_distance = track_to_track_distance
 		self.plate_width = plate_width
@@ -24,11 +26,13 @@ class BoardConfig:
 		self.copper_thiknes_um = copper_thiknes_um
 		self.u = u
 		self.temperature = temperature
+		self.foreground_color = foreground_color
+		self.background_color = background_color
 
-def draw_line(dwg, start, end, width):
+def draw_line(dwg, start, end, width, color='white'):
 	dwg.add(dwg.line(start=(start[0]*mm, start[1]*mm),
 					end=(end[0]*mm, end[1]*mm),
-					stroke='black',
+					stroke=color,
 					stroke_width=width*mm,
 					stroke_linecap='round'))
 
@@ -127,8 +131,9 @@ def draw_pcb(config, file_name, draw_method):
 						 config.track_width,
 						 config.track_to_track_distance)
 	wire_lenth = 0
+	dwg.add(dwg.rect((0, 0), (config.plate_width*mm, config.plate_width*mm), stroke=config.background_color))
 	for line in lines:
-		draw_line(dwg, line[0], line[1], config.track_width)
+		draw_line(dwg, line[0], line[1], config.track_width, config.foreground_color)
 		wire_lenth = wire_lenth + calc_distance(line[0][0], line[0][1], line[1][0], line[1][1])
 	dwg.save()
 	return wire_lenth
