@@ -119,10 +119,13 @@ def get_lines_type2(w, h, padding_w, padding_h, track_width, track_to_track_dist
 			lines.append(line)
 	return lines
 
-
+def get_lines_lenth(lines):
+	wire_lenth = 0
+	for line in lines:
+		wire_lenth = wire_lenth + calc_distance(line[0][0], line[0][1], line[1][0], line[1][1])
+	return wire_lenth
 
 def draw_pcb(config, file_name, draw_method):
-	wire_lenth = 0
 	dwg = svgwrite.Drawing(file_name, profile='tiny', size=(config.plate_width*mm, config.plate_height*mm))
 	lines = draw_method(config.w,
 						 config.h,
@@ -130,13 +133,11 @@ def draw_pcb(config, file_name, draw_method):
 						 config.padding_h,
 						 config.track_width,
 						 config.track_to_track_distance)
-	wire_lenth = 0
 	dwg.add(dwg.rect((0, 0), (config.plate_width*mm, config.plate_width*mm), stroke=config.background_color))
 	for line in lines:
 		draw_line(dwg, line[0], line[1], config.track_width, config.foreground_color)
-		wire_lenth = wire_lenth + calc_distance(line[0][0], line[0][1], line[1][0], line[1][1])
 	dwg.save()
-	return wire_lenth
+	return get_lines_lenth(lines)
 
 def print_info(config, wire_lenth, svg_filename):
 	print('For file: ', svg_filename)
@@ -152,12 +153,13 @@ def print_info(config, wire_lenth, svg_filename):
 
 if __name__ == '__main__':
 	config = BoardConfig()
-	svg_filename = 'pcb_type1.svg'
-	wire_lenth = draw_pcb(config, svg_filename, get_lines_type1)
-	print_info(config, wire_lenth, svg_filename)	
-
-	print("")
-	
-	svg_filename = 'pcb_type2.svg'
-	wire_lenth = draw_pcb(config, svg_filename, get_lines_type2)
-	print_info(config, wire_lenth, svg_filename)	
+	svg_filename = 'pcb_type.svg'
+#	svg_filename = 'pcb_type1.svg'
+#	wire_lenth = draw_pcb(config, svg_filename, get_lines_type1)
+#	print_info(config, wire_lenth, svg_filename)	
+#
+#	print("")
+#	
+#	svg_filename = 'pcb_type2.svg'
+#	wire_lenth = draw_pcb(config, svg_filename, get_lines_type2)
+#	print_info(config, wire_lenth, svg_filename)	
