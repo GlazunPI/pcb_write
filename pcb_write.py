@@ -77,9 +77,8 @@ def get_lines_type1(w, h, padding_w, padding_h, track_width, track_to_track_dist
 def get_lines_type2(w, h, padding_w, padding_h, track_width, track_to_track_distance):
 	track_count = calc_track_count(w, track_width, track_to_track_distance)
 	lines = []
-	#TODO: Add logic - track count % 4 == 0
 	if track_count % 4 != 0:
-		pass
+		track_count = int(track_count/4)*4
 	for track in range(track_count):
 		x1 = (track*(track_width+track_to_track_distance)+padding_w)
 		if track % 4 == 0 or track % 4 == 3 or track ==  track_count - 1:
