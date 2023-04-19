@@ -125,19 +125,18 @@ def get_lines_lenth(lines):
 		wire_lenth = wire_lenth + calc_distance(line[0][0], line[0][1], line[1][0], line[1][1])
 	return wire_lenth
 
-def draw_pcb(config, file_name, draw_method):
+def draw_pcb(config, file_name, lines, text=''):
 	dwg = svgwrite.Drawing(file_name, profile='tiny', size=(config.plate_width*mm, config.plate_height*mm))
-	lines = draw_method(config.w,
-						 config.h,
-						 config.padding_w,
-						 config.padding_h,
-						 config.track_width,
-						 config.track_to_track_distance)
 	dwg.add(dwg.rect((0, 0), (config.plate_width*mm, config.plate_width*mm), stroke=config.background_color))
 	for line in lines:
 		draw_line(dwg, line[0], line[1], config.track_width, config.foreground_color)
+
+	text_spacing = 3
+	o = -1*len(text.split('\n'))*text_spacing 
+	for string in text.split('\n'):
+		dwg.add(dwg.text(string, insert=(0, o*mm), fill='red'))
+		o = o + text_spacing 
 	dwg.save()
-	return get_lines_lenth(lines)
 
 def calc_width_for_power(config, power, draw_method, tol = 1):
 	while True:
@@ -153,35 +152,26 @@ def calc_width_for_power(config, power, draw_method, tol = 1):
 		grad = (power - new_power)/power
 		config.track_width += grad/10.0
 		if config.track_width <= 0:
-			return
+			return lines
 		if abs(power-new_power)<=tol:
-			return
+			return lines
 
-def print_info(config, wire_lenth, svg_filename):
-	print('For file: ', svg_filename)
-	print('Coper thiknes is: ', config.copper_thiknes_um, 'um')
-	print('Track width is: ', config.track_width, 'mm')
-	print('Track to track distance is: ', config.track_to_track_distance, 'mm')
-	print('Totol lenth is: ', wire_lenth, 'mm')
+def create_info_string(config, wire_lenth, svg_filename):
 	r = calc_resistance(wire_lenth/1000, config.track_width, config.copper_thiknes_um, config.temperature)
-	print('Resistance is: ', r, 'Om at ', config.temperature, ' degrees of Celsius')
-	print('Current is :', config.u/r, 'Amps')
-	print('Power is: ', config.u*config.u/r, 'Watt')
-	print('')
+	return (F'For file: {svg_filename}\n'
+	F'Coper thiknes is: {config.copper_thiknes_um} um\n'
+	F'Track width is: {config.track_width} mm\n'
+	F'Track to track distance is: {config.track_to_track_distance} mm\n'
+	F'Totol lenth is: {wire_lenth} mm\n'
+	F'Resistance is: {r} Om at {config.temperature} degrees of Celsius\n'
+	F'Current is : {config.u/r} Amps\n'
+	F'Power is: {config.u*config.u/r} Watt\n')
 
 if __name__ == '__main__':
 	config = BoardConfig()
 	svg_filename = 'pcb_type.svg'
-	calc_width_for_power(config, 200, get_lines_type2)
-	wire_lenth = draw_pcb(config, svg_filename, get_lines_type2)
-	print_info(config, wire_lenth, svg_filename)	
+	lines = calc_width_for_power(config, 1700/4, get_lines_type2)
+	info_string = create_info_string(config, get_lines_lenth(lines), svg_filename)
+	draw_pcb(config, svg_filename, lines, info_string)
+	print(info_string)
 
-#	svg_filename = 'pcb_type1.svg'
-#	wire_lenth = draw_pcb(config, svg_filename, get_lines_type1)
-#	print_info(config, wire_lenth, svg_filename)	
-#
-#	print("")
-#	
-#	svg_filename = 'pcb_type2.svg'
-#	wire_lenth = draw_pcb(config, svg_filename, get_lines_type2)
-#	print_info(config, wire_lenth, svg_filename)	
