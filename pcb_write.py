@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import svgwrite
 import math
 from svgwrite import mm
@@ -169,9 +171,11 @@ def create_info_string(config, wire_lenth, svg_filename):
 
 if __name__ == '__main__':
 	config = BoardConfig()
-	svg_filename = 'pcb_type.svg'
-	lines = calc_width_for_power(config, 1700/4, get_lines_type2)
-	info_string = create_info_string(config, get_lines_lenth(lines), svg_filename)
-	draw_pcb(config, svg_filename, lines, info_string)
-	print(info_string)
+	draw_functions = [get_lines_type1, get_lines_type2]
+	for i, draw_function in enumerate(draw_functions):
+		svg_filename = 'pcb_type_' + str(i + 1) + '.svg'
+		lines = calc_width_for_power(config, 1800/4, draw_function)
+		info_string = create_info_string(config, get_lines_lenth(lines), svg_filename)
+		draw_pcb(config, svg_filename, lines, info_string)
+		print(info_string)
 
